@@ -206,7 +206,7 @@ def start_at_craiglockhart
   JOIN
     stops stopb ON (b.stop_id = stopb.id)
   WHERE
-    stopa.name = 'Craiglockart'
+    stopa.name = 'Craiglockhart'
   SQL
 end
 
@@ -215,5 +215,20 @@ def craiglockhart_to_sighthill
   # Sighthill. Show the bus no. and company for the first bus, the name of the
   # stop for the transfer, and the bus no. and company for the second bus.
   execute(<<-SQL)
+  SELECT
+    a.num, a.company, stopb.name, c.num, c.company
+  FROM
+    routes a
+  JOIN
+    routes b ON (a.company = b.company AND a.num = b.num)
+  JOIN
+    stops stopa ON (a.stop_id = stopa.id)
+  JOIN
+    stops stopb ON (b.stop_id = stopb.id)
+  JOIN
+    stops stopc ON (c.stop_id = stopc.id)
+  WHERE
+    stopa.name = 'Craiglockhart' AND
+    stopc.name = 'Sighthill'
   SQL
 end
