@@ -58,7 +58,7 @@ def blur_songs
   SELECT
     song
   FROM
-    album
+    albums
   JOIN
     tracks ON tracks.album = albums.asin
   WHERE
@@ -71,6 +71,18 @@ def heart_tracks
   # the word 'Heart' (albums with no such tracks need not be shown). Order by
   # the number of such tracks.
   execute(<<-SQL)
+  SELECT
+    title, COUNT(song)
+  FROM
+    albums
+  JOIN
+    tracks ON tracks.album = albums.asin
+  WHERE
+    tracks.song LIKE '%Heart%'
+  GROUP BY
+    albums.asin
+  HAVING COUNT(song) > 0
+  ORDER BY COUNT(song) DESC
   SQL
 end
 
@@ -78,6 +90,14 @@ def title_tracks
   # A 'title track' has a `song` that is the same as its album's `title`. Select
   # the names of all the title tracks.
   execute(<<-SQL)
+  SELECT
+    title
+  FROM
+    albums
+  JOIN
+    tracks ON tracks.album = albums.asin
+  WHERE
+    song = title
   SQL
 end
 
@@ -85,6 +105,12 @@ def eponymous_albums
   # An 'eponymous album' has a `title` that is the same as its recording
   # artist's name. Select the titles of all the eponymous albums.
   execute(<<-SQL)
+  SELECT
+    title
+  FROM
+    albums
+  WHERE
+    title = artist
   SQL
 end
 
@@ -92,6 +118,14 @@ def song_title_counts
   # Select the song names that appear on more than two albums. Also select the
   # COUNT of times they show up.
   execute(<<-SQL)
+  SELECT
+    song, COUNT(album)
+  FROM
+    tracks
+  GROUP BY
+    song
+  HAVING
+    COUNT(album) > 2
   SQL
 end
 
@@ -100,6 +134,16 @@ def best_value
   # pence. Find the good value albums - show the title, the price and the number
   # of tracks.
   execute(<<-SQL)
+  SELECT
+    title, price, COUNT(song)
+  FROM
+    albums
+  JOIN
+    tracks ON tracks.album = albums.asin
+  GROUP BY
+    asin
+  HAVING
+    price / COUNT(song) < 0.50
   SQL
 end
 
